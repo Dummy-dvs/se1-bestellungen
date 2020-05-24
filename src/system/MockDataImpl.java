@@ -5,16 +5,34 @@ import model.Customer;
 import model.Order;
 import model.OrderItem;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 class MockDataImpl implements DataAccess {
 	private final List<Customer> customers = new ArrayList<>();
 	private final List<Article> articles = new ArrayList<>();
+	private final HashMap<String, Article> articlesPL = new HashMap<String, Article>();
 	private final List<Order> orders = new ArrayList<>();
-	public MockDataImpl(){
+	HashMap<String, Long> priceTable;
+	private final Object[][] priceTable_Normal
+			= new Object[][]{
+			{"SKU-458362", 299}, //Tasse
+			{"SKU-693856", 149}, //Becher
+			{"SKU-518957", 2000}, //Kanne
+			{"SKU-638035", 649}, //Teller
+			{"SKU‐386035", 2999}, //Kaffm.
+			{"SKU‐443803", 1999}, //Teekoch.
+	};
+	private final Object[][] priceTable_Discount
+			= new Object[][]{
+			{"SKU-458362", 249}, //Tasse
+			{"SKU-693856", 99}, //Becher
+			{"SKU-518957", 1499}, //Kanne
+			{"SKU-638035", 499}, //Teller
+			{"SKU‐386035", 2499}, //Kaffm.
+			{"SKU‐443803", 1499}, //Teekoch.
+	};
+
+	public MockDataImpl() {
 		//Customers
 		customers.add(new Customer("C86516", "Eric Schulz-Mueller", "eric2346@gmail.com"));
 		customers.add(new Customer("C64327", "Meyer, Anne", "+4917223524"));
@@ -26,50 +44,87 @@ class MockDataImpl implements DataAccess {
 		articles.add(new Article("SKU-693856", "Becher", 149, 8400));
 		articles.add(new Article("SKU-518957", "Kanne", 2000, 2400));
 		articles.add(new Article("SKU-638035", "Teller", 649, 7000));
-		articles.add(new Article("Mr Coffee", "Kaffemaschine", 2999, 500));
-		articles.add(new Article("Mr Tea", "Teekocher", 1999, 2000));
+		articles.add(new Article("SKU‐386035", "Kaffemaschine", 2999, 500));
+		articles.add(new Article("SKU‐443803", "Teekocher", 1999, 2000));
+		applyPriceTable(priceTable_Discount);
 	}
+
+	private void createPTArticles() {
+		articlesPL.clear();
+		for (var a : articles) {
+			var id = a.getId();
+			if (priceTable.containsKey(id))
+				a.setUnitPrice(priceTable.get(id));
+			articlesPL.put(id, a);
+		}
+	}
+
+	public void applyPriceTable(Object[][] newPriceList) {
+		priceTable = new HashMap<String, Long>();
+		for (var art : newPriceList)
+			priceTable.put((String) art[0], ((Integer) art[1]).longValue());
+		createPTArticles();
+	}
+
+	public long getArticlePrice(Article a) {
+		return priceTable.containsKey(a.getId()) ? priceTable.get(a.getId()) : a.getUnitPrice();
+	}
+
+	public void adjustPrice(Article article, Object[][] priceTable) {
+		for (var art : priceTable)
+			if (art[0].equals(article.getId()))
+				this.priceTable.put((String) art[0], ((Integer) art[1]).longValue());
+		createPTArticles();
+	}
+
 	@Override
 	public List<Customer> getCustomers() {
 		return customers;
 	}
+
 	@Override
 	public List<Article> getArticles() {
-		return Collections.unmodifiableList(articles);
+		return List.copyOf(articlesPL.values());
 	}
+
 	@Override
 	public List<Order> getOrders() {
 		return Collections.unmodifiableList(orders);
 	}
+
 	@Override
 	public Customer getCustomer(int i) {
 		return i > 0 && i < customers.size() ? customers.get(i) : null;
 	}
+
 	@Override
 	public Article getArticle(int i) {
-		return i > 0 && i < articles.size() ? articles.get(i) : null;
+		return i > 0 && i < articlesPL.size() ? articlesPL.get(articles.get(i).getId()) : null;
 	}
+
 	@Override
 	public Order getOrder(int i) {
 		return i > 0 && i < orders.size() ? orders.get(i) : null;
 	}
+
 	@Override
 	public DataAccess add(Order order) {
 		orders.add(order);
 		for (var oi : order.getItems()) {
-			var a = articles.get(articles.indexOf(oi.getArticle()));
+			var a = articlesPL.get(oi.getArticle().getId());
 			a.setUnitsInStore(a.getUnitsInStore() - oi.getUnitsOrdered());
 		}
 		return this;
 	}
+
 	@Override
 	public void startup() {
-		var a1=articles.get(0);
-		var a2=articles.get(1);
-		var a3=articles.get(2);
-		var a4=articles.get(3);
-		var a5=articles.get(4);
-		var a6=articles.get(5);
+		var a1 = articlesPL.get("SKU-458362");
+		var a2 = articlesPL.get("SKU-693856");
+		var a3 = articlesPL.get("SKU-518957");
+		var a4 = articlesPL.get("SKU-638035");
+		var a5 = articlesPL.get("SKU‐386035");
+		var a6 = articlesPL.get("SKU‐443803");
 		//Orders
 		add(new Order(5234968294L, new Date(), customers.get(0)).addItem(new OrderItem(a3.getDescription(), a3, 1)));
 		add(new Order(8592356245L, new Date(), customers.get(0)).addItem(new OrderItem(a4.getDescription(), a4, 4)).addItem(new OrderItem(a2.getDescription(), a2, 8)).addItem(new OrderItem("passende Tassen", a1, 4)));
@@ -78,6 +133,7 @@ class MockDataImpl implements DataAccess {
 		add(new Order(9235856245L, new Date(), customers.get(3)).addItem(new OrderItem(a5.getDescription(), a5, 1)).addItem(new OrderItem(a1.getDescription(), a1, 6)));
 		add(new Order(7335856245L, new Date(), customers.get(4)).addItem(new OrderItem(a6.getDescription(), a6, 1)).addItem(new OrderItem(a2.getDescription(), a2, 4)).addItem(new OrderItem(a4.getDescription(), a4, 4)));
 	}
+
 	@Override
 	public void shutdown() {
 		customers.clear();

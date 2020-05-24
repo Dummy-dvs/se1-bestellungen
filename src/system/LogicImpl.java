@@ -88,8 +88,11 @@ class LogicImpl implements Logic {
 		return ret;
 	}
 
+	private long calcVATFast(long cost) {
+		return cost - ((cost * 100) / VAT);
+	}
 	private long calcVAT(long cost) {
-		return cost - (cost * 100 / VAT);
+		return(long)( cost - (cost / (VAT/100.0)));
 	}
 
 	@Override
