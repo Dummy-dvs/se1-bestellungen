@@ -46,7 +46,7 @@ class MockDataImpl implements DataAccess {
 		articles.add(new Article("SKU-638035", "Teller", 649, 7000));
 		articles.add(new Article("SKU‐386035", "Kaffemaschine", 2999, 500));
 		articles.add(new Article("SKU‐443803", "Teekocher", 1999, 2000));
-		applyPriceTable(priceTable_Discount);
+		applyPriceTable(priceTable_Normal);
 	}
 
 	private void createPTArticles() {
