@@ -1,5 +1,6 @@
 package system;
 
+import data_access.DataAccess;
 import model.Order;
 import model.OrderItem;
 
@@ -11,7 +12,10 @@ import java.util.Locale;
 class LogicImpl implements Logic {
 	//VAT berechnung 19% + 1 aka 19 + 100
 	private static final long VAT = 119;
-
+	private final DataAccess myData;
+	public LogicImpl(DataAccess source){
+		myData=source;
+	}
 	@Override
 	public void printOrders(Iterable<Order> orders) {
 		long totalPrice = 0, totalVAT = 0;
@@ -43,8 +47,7 @@ class LogicImpl implements Logic {
 
 	@Override
 	public void printInventory() {
-		var da = Builder.getInstance().dataAccess();
-		var articles = da.getArticles();
+		var articles = myData.articles().findAll();
 		int idlen = 0, desclen = 0, unitlen = 0, pricelen = 0, valuelen = 0;
 		long totals = 0;
 		for (var a : articles) {
@@ -101,8 +104,12 @@ class LogicImpl implements Logic {
 	}
 
 	@Override
+	public void fillOrder(Order order) {
+
+	}
+
+	@Override
 	public void startup() {
-		printInventory();
 	}
 
 	@Override

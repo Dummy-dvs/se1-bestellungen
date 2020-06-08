@@ -1,36 +1,102 @@
 package system;
 
-public class Builder implements  ComponentLifecycle {
-	private static final Builder instance = new Builder();
+import java.util.function.Consumer;
+
+import data_access.DataAccess;
+
+
+/**
+ * Public singleton to build-up system from its components.
+ *
+ * @author sgra64
+ */
+public class Builder implements ComponentLifecycle {
+
+	private static Builder instance = new Builder();
+
 	private final Logic logic;
+
 	private final DataAccess dataAccess;
+
+	private int phase = 0;
+
+
 	/*
 	 * Private constructor to prevent object creation from outside.
 	 */
 	private Builder() {
-		this.logic = new LogicImpl();
-		this.dataAccess = new MockDataImpl();
+		this.dataAccess = DataAccess.getInstance();
+		this.logic = new LogicImpl(dataAccess);    // inject dependency on dataAccess into logic
 	}
+
 	/*
 	 * Public method to access singleton Builder instance.
 	 */
 	public static Builder getInstance() {
 		return instance;
 	}
+
+
 	@Override
 	public void startup() {
-		logic.startup();
 		dataAccess.startup();
+		logic.startup();
 	}
+
 	@Override
 	public void shutdown() {
-		logic.shutdown(); // in reverse order
+		logic.shutdown();        // reverse order to startup()
 		dataAccess.shutdown();
 	}
-	public DataAccess dataAccess() {
-		return dataAccess;
+
+
+	/**
+	 * Builder's build functions.
+	 */
+	public Builder build(int phase) {
+		return build(phase, null);
 	}
+
+	public Builder build(int phase, Consumer<Builder> addOnCallback) {
+		if (this.phase == phase - 1) {
+			this.phase = phase;
+
+			switch (phase) {
+
+				case 1:    // Phase 1: build Customer and Article data
+					dataAccess.buildMockData().ifPresent(mockDataBuilder -> {
+						mockDataBuilder.buildCustomers();
+						mockDataBuilder.buildArticles();
+					});
+					break;
+
+				case 2:    // Phase 2: build Orders based on Customer and Article data
+					dataAccess.buildMockData().ifPresent(mockDataBuilder -> {
+						mockDataBuilder.buildOrders(order -> {
+							logic.fillOrder(order);
+						});
+					});
+					break;
+
+			}
+			if (addOnCallback != null) {
+				addOnCallback.accept(this);
+			}
+
+		} else {
+			System.out.println(this.getClass().getSimpleName()
+					+ ".build() not in sync, expected phase " + (this.phase + 1)
+					+ ", but saw phase " + phase);
+		}
+		return this;
+	}
+
 	public Logic logic() {
 		return logic;
 	}
+
+	public DataAccess dataAccess() {
+		return dataAccess;
+	}
+
 }

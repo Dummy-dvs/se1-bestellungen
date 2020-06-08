@@ -7,4 +7,5 @@ public interface Logic extends ComponentLifecycle{
 	void printInventory();
 	long calculateTotal(Order order);
 	long calculateIncludedVAT(Order order);
+	void fillOrder(Order order);
 }
