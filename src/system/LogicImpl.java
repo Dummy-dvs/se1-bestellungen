@@ -13,7 +13,7 @@ class LogicImpl implements Logic {
 	private static final long VAT = 119;
 
 	@Override
-	public void printOrders(List<Order> orders) {
+	public void printOrders(Iterable<Order> orders) {
 		long totalPrice = 0, totalVAT = 0;
 		var sb = new StringBuilder();
 		for (Order order : orders) {
