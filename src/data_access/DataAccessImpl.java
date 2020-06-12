@@ -23,10 +23,6 @@ class DataAccessImpl implements DataAccess {
 	private final DataRepository<Article,String> articles;
 
 	private final DataRepository<Order,Long> orders;
-
-	private Optional<MockDataBuilder> mockDataBuilder = Optional.empty();
-
-
 	/*
 	 * Constructor.
 	 */
@@ -78,27 +74,17 @@ class DataAccessImpl implements DataAccess {
 
 
 	@Override
-	public DataRepository<Customer,String> customers() {
+	public DataRepository<Customer,String> getCustomerData() {
 		return this.customers;
 	}
 
 	@Override
-	public DataRepository<Article,String> articles() {
+	public DataRepository<Article,String> getArticleData() {
 		return this.articles;
 	}
 
 	@Override
-	public DataRepository<Order,Long> orders() {
+	public DataRepository<Order,Long> getOrderData() {
 		return this.orders;
 	}
-
-
-	@Override
-	public Optional<MockDataBuilder> buildMockData() {
-		if( ! mockDataBuilder.isPresent() ) {
-			mockDataBuilder = Optional.of( new MockDataBuilderImpl( this ) );
-		}
-		return mockDataBuilder;
-	}
-
 }

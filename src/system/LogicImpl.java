@@ -2,11 +2,9 @@ package system;
 
 import data_access.DataAccess;
 import model.Order;
-import model.OrderItem;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.List;
 import java.util.Locale;
 
 class LogicImpl implements Logic {
@@ -47,7 +45,7 @@ class LogicImpl implements Logic {
 
 	@Override
 	public void printInventory() {
-		var articles = myData.articles().findAll();
+		var articles = myData.getArticleData().findAll();
 		int idlen = 0, desclen = 0, unitlen = 0, pricelen = 0, valuelen = 0;
 		long totals = 0;
 		for (var a : articles) {

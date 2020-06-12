@@ -1,6 +1,6 @@
 import data_access.DataAccess;
 import model.Order;
-import system.Builder;
+import system.builder.Builder;
 import system.Logic;
 
 
@@ -28,7 +28,7 @@ public class Application_3 {
 			})
 			.build( 2 );
 
-		Iterable<Order> orders = dataAccess.orders().findAll();
+		Iterable<Order> orders = dataAccess.getOrderData().findAll();
 		logic.printOrders( orders );
 		logic.printInventory();
 
