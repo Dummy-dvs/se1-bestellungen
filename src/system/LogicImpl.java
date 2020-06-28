@@ -93,7 +93,7 @@ class LogicImpl implements Logic {
 		return cost - ((cost * 100) / VAT);
 	}
 	private long calcVAT(long cost) {
-		return(long)( cost - (cost / (VAT/100.0)));
+		return cost-Math.round(cost / (VAT/100.0));
 	}
 
 	@Override
