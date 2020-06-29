@@ -1,5 +1,6 @@
 package model;
 
+import java.lang.reflect.MalformedParametersException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -194,9 +195,7 @@ public class CustomerTest {
 		assertEquals( c1.getFirstName(), "" );
 		assertEquals( c1.getLastName(), "Blumenfeld" );
 
-		/*
-		 * Ambitionierte Tests
-		 * /
+
 		c1.setName( "Blumenfeld," );
 		assertEquals( c1.getFirstName(), "" );
 		assertEquals( c1.getLastName(), "Blumenfeld" );
@@ -216,7 +215,7 @@ public class CustomerTest {
 		c1.setName( "Nadine Ulla-Mona-Blumenfeld-Meyer" );
 		assertEquals( c1.getFirstName(), "Nadine" );
 		assertEquals( c1.getLastName(), "Ulla-Mona-Blumenfeld-Meyer" );
-		/* */
+		//assertThrows(MalformedParametersException.class,()->{c1.setName("");});
 	}
 
 

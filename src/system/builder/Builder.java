@@ -75,9 +75,7 @@ public class Builder implements ComponentLifecycle {
                     break;
 
                 case 2:    // Phase 2: build Orders based on Customer and Article data
-                    mockDataBuilder.buildOrders(order -> {
-                        logic.fillOrder(order);
-                    });
+                    mockDataBuilder.buildOrders(logic::fillOrder);
                     break;
 
             }
